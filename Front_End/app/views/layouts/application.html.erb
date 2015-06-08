@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>MySQL Front End</title>
+  <%= stylesheet_link_tag "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" %>
+  <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
+  <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
+  <%= csrf_meta_tags %>
+
+</head>
+<body>
+
+  <div class="container-fluid">
+	<div class="col-md-8 col-md-offset-2" style="padding-bottom:10px;">
+    <h1><%= link_to "Front End", "/tables" %></h1><br>
+    <%= link_to "Table Explorer", "/tables", :class => "btn btn-default" %>
+
+    <% if notice.present? %>
+      <div class="alert alert-info"%>
+        <%= notice %>
+      </div><br>
+      </div>
+    <% end %>
+	</div><br><br>
+    <%= yield %>
+  </div>
+
+</body>
+</html>
