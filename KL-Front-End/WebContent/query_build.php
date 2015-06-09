@@ -19,22 +19,6 @@
     <![endif]-->
   <script src="jquery-1.11.3.min.js"></script>
   
-  <script type="text/javascript">
-  	$(document).ready(function(){
-		$(".table_select").change(function(){
-			xmlhttp = new XMLHttpRequest();
-			xmlhttp.onreadystatechange = function() {
-	        $(".column_select").innerHTML = xmlhttp.responseText;
-	        }
-			xmlhttp.open("GET","getmenu.php?q=" + $(".table_select").val(),true);
-	        xmlhttp.send();
-		});
-
-	});
-  </script>
-  
-  
-  
   </head>
   <body>
   
@@ -54,30 +38,88 @@ $_SESSION['db'] = $db;
 echo '<h1>'.$_SESSION['db'] . '</h1>';
 mysql_select_db ($db);
 $table_list =  mysql_list_tables($db);
-echo '<br>I want rows where: <br>';
 
-echo '<form action="query_run.php" method="post">
-<select name="table" id="table_select" class="form-control">'; // Open drop down box
-
-while ($row = mysql_fetch_row($table_list)) {
-	echo '<option value="'.$row[0] . '">'.$row[0] .'</option>';
+//get the list of tables for use in javascript
+$rows = array();
+while($row = mysql_fetch_array($table_list)) {
+	$rows[] = $row;
 }
+$js_tables = json_encode($rows);
 
-echo '</select>';// Close drop down box
-echo '<select id="column_select" class="form-control" name="column"></select>';
-
-echo '<input type="radio" name ="relation" value="checked"> all rows ';
-echo '<input type="radio" name ="relation" value="checked"> exactly ';
-echo '<input type="radio" name ="relation"> similar to ';
-echo '<input type="radio" name ="relation"> in ';
-
-echo '<input type="text" name="value"><br><br>';
-
-echo '<a>AND</a>  ';
-echo '<a>OR</a><br>';
+echo '<br>I want rows where: <br> <form action="query_run.php" method="post"><div id="all_queries"></div></form>';
 
 mysql_close($conn);
 ?>
+
+  <script type="text/javascript"> 
+  	$(document).ready(function(){
+
+	    var tables = <?php echo $js_tables; ?>;
+
+		  jQuery.fn.new_query = function() {
+			  return this.each(function() {
+				  $target = $(this);
+				  $target.html('<div class="query-wrapper"> <select name="table" class="table_select form-control"><br>');
+					for (idx=0; idx< tables.length; idx++){
+						$target.find(".table_select").append("<option value= '" + tables[idx]["Tables_in_arxiv"] + "'> "+tables[idx]["Tables_in_arxiv"] + "</option>");
+					};
+					$target.find(".query-wrapper").append('<select class="column_select form-control" name="column"></select><br>');
+					$target.find(".query-wrapper").append('<input type="radio" name ="relation" value="checked"> all rows <input type="radio" name ="relation" value="checked"> exactly <input type="radio" name ="relation"> similar to <input type="radio" name ="relation"> in  <input type="text" name="value"><br><br>');
+					$target.find(".query-wrapper").append('<div class="combine"><a class="and">AND</a><a class="or">OR</a><br></div>');
+					  });
+  		   }
+
+
+		 jQuery.fn.parser = function() {
+			  return this.each(function() {
+				query = "";
+				table = $(this).find(".table_select").val();
+				query = query + table;
+				table = $(this).find(".column_select").val();
+				query = query + " FROM " + column;
+			  });
+		   }
+
+
+		$("html").on('change', '.table_select', function(event) {
+			xmlhttp = new XMLHttpRequest();
+			xmlhttp.onreadystatechange = function() {
+	        	$target = $(event.target).siblings(".column_select");
+	        	$target.html(xmlhttp.responseText);
+	        }
+			xmlhttp.open("GET","getmenu.php?q=" + $(".table_select").val(),true);
+	        xmlhttp.send();
+		});
+		
+		$("html").on('click', '.and', function(event) {
+			$(event.target).parent(".combine").addClass("and");
+			$(event.target).parent(".combine").new_query();
+		});
+
+		$("html").on('click', '.or', function(event) {
+			$(event.target).parent(".combine").addClass("or");
+			$(event.target).parent(".combine").new_query();
+		});
+
+		setInterval(function() {
+			query = "";
+			$(".query-wrapper").each(function (){
+				if ($(this).hasClass("and"))
+					{
+					query = query + " AND ";
+				}
+				else if ($(this).hasClass("or"))
+				{
+					query = query + " OR ";
+				}
+					
+			});
+			$("#query_div").text(query);
+		}, 1000);
+
+		$("#all_queries").new_query();
+	});
+  </script>
 
 Return results as:
 
@@ -90,8 +132,12 @@ Return results as:
 <br><br>
 
 <input type="submit" name="submit"></form>
+
 </div>
+<div class="col-md-1" style="position:fixed;">QUERY PREVIEW WINDOW<br><br><div id="query_div"></div></div>
+<div class="col-md-1 col-md-offset-10" style="position:fixed;">RESULTS PREVIEW WINDOW<br><br><div id="results_div"></div></div></div>
 </div>
+
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
