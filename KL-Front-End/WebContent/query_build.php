@@ -59,28 +59,35 @@ mysql_close($conn);
 		  jQuery.fn.new_query = function() {
 			  return this.each(function() {
 				  $target = $(this);
-				  $target.html('<div class="query-wrapper"> <select name="table" class="table_select form-control"><br>');
+				  $target.html('<div class="query-wrapper"><select name="table" class="table_select form-control"><br>');
 					for (idx=0; idx< tables.length; idx++){
 						$target.find(".table_select").append("<option value= '" + tables[idx]["Tables_in_arxiv"] + "'> "+tables[idx]["Tables_in_arxiv"] + "</option>");
 					};
 					$target.find(".query-wrapper").append('<select class="column_select form-control" name="column"></select><br>');
-					$target.find(".query-wrapper").append('<input type="radio" name ="relation" value="checked"> all rows <input type="radio" name ="relation" value="checked"> exactly <input type="radio" name ="relation"> similar to <input type="radio" name ="relation"> in  <input type="text" name="value"><br><br>');
+					$target.find(".query-wrapper").append('<div class="Where_wrapper"><input class="where_select" type="radio" name ="where" checked="checked" value ="all" > all rows <input class="where_select" type="radio" name ="where" value="exact"> exactly <input type="radio" class="where_select" name ="where" value="similar"> similar to <input class="where_select" type="radio" name ="where" value="in"> in <input type="radio" class="where_select" name ="where" value="dropdown"> dropdown <br><input class="where_text" type="text" >  </div> <br><br>');
 					$target.find(".query-wrapper").append('<div class="combine"><a class="and">AND</a><a class="or">OR</a><br></div>');
 					  });
   		   }
 
 
 		 jQuery.fn.parser = function() {
-			  return this.each(function() {
-				query = "";
-				table = $(this).find(".table_select").val();
-				query = query + table;
-				table = $(this).find(".column_select").val();
-				query = query + " FROM " + column;
-			  });
-		   }
+			query = "";
+			table = $(this).find(".table_select").val();
+			query = query + table;
+			column = $(this).find(".column_select").val();
+			query = query + " FROM " + column;
+			return query;
+		 }
 
-
+		 $("html").on('change', '.where_select', function(event) {
+			 if ($(event.target).val() != "exact" && $(event.target).val() != "similar"){
+			 	$(event.target).parent().find(".where_text").hide();
+			 }
+			 else{
+				 $(event.target).parent().find(".where_text").show();
+			 }
+		 });
+		 
 		$("html").on('change', '.table_select', function(event) {
 			xmlhttp = new XMLHttpRequest();
 			xmlhttp.onreadystatechange = function() {
@@ -102,20 +109,45 @@ mysql_close($conn);
 		});
 
 		setInterval(function() {
-			query = "";
+			query = "SELECT * FROM ";
 			$(".query-wrapper").each(function (){
-				if ($(this).hasClass("and"))
-					{
+				table = $(this).find(".table_select").val();
+				query = query + table + " ";
+				column = $(this).find(".column_select").val();
+				query = query + " WHERE " + column + " ";
+				search_string = $(this).find(".where_text").val();
+
+				if ($(this).find("input[name=where]:checked").val()=="all"){
+				//don't need to handle this?
+				}
+				else if ($(this).find("input[name=where]:checked").val()=="exact"){
+					query= query + ' = "' + search_string + '"';
+				}
+				else if ($(this).find("input[name=where]:checked").val()=="similar"){
+					query= query + " LIKE %" + search_string + "%";
+				}
+
+				if ($(this).find(".combine").hasClass("and")){
 					query = query + " AND ";
 				}
-				else if ($(this).hasClass("or"))
-				{
+				else if ($(this).find(".combine").hasClass("or")){
 					query = query + " OR ";
 				}
-					
+				
 			});
+			query = query + ";"
 			$("#query_div").text(query);
 		}, 1000);
+
+
+		setInterval(function() {
+			xmlhttp = new XMLHttpRequest();
+			xmlhttp.onreadystatechange = function() {
+	        	$("#results_div").html(xmlhttp.responseText);
+	        }
+			xmlhttp.open("GET","getpreview.php?q=" + query);
+	        xmlhttp.send();
+	}, 5000);
 
 		$("#all_queries").new_query();
 	});
@@ -134,8 +166,8 @@ Return results as:
 <input type="submit" name="submit"></form>
 
 </div>
-<div class="col-md-1" style="position:fixed;">QUERY PREVIEW WINDOW<br><br><div id="query_div"></div></div>
-<div class="col-md-1 col-md-offset-10" style="position:fixed;">RESULTS PREVIEW WINDOW<br><br><div id="results_div"></div></div></div>
+<div class="col-md-1" style="position:fixed;"><h3>Query Preview</h3><br><div id="query_div"></div></div>
+<div class="col-md-1 col-md-offset-10" style="position:fixed;"><h3>Results Preview</h3><br><br><div id="results_div"></div></div></div>
 </div>
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
