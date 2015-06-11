@@ -37,24 +37,42 @@ mysql_select_db ($db);
 $db_list =  mysql_query("SHOW DATABASES");
 echo 'Select a database to query: ';
 echo '<form action="query_build.php" method="post" >
-<select name="db" class="form-control">'; // Open your drop down box
+<select name="db" class="form-control db_select">'; //db dropdown
 
 while ($row = mysql_fetch_object($db_list)) {
 	echo '<option value="'.$row->Database . '">'.$row->Database .'</option>';
 }
 
-echo '</select>';// Close your drop down box
+echo '</select>';
+echo 'Select a table from that database: <select name="table" class="form-control table_select"><br><br>'; //table dropdown
 
 
 mysql_close($conn);
 ?>
-<input type="submit"></form>
+<input type="submit" class=".btn-default"></form>
 </div>
 </div>
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="js/bootstrap.min.js"></script>
+    
+    
+    <script type="text/javascript"> 
+  	$(document).ready(function(){
+		 
+		$("html").on('change', '.db_select', function(event) {
+			xmlhttp = new XMLHttpRequest();
+			xmlhttp.onreadystatechange = function() {
+	        	$target = $(event.target).siblings(".table_select");
+	        	$target.html(xmlhttp.responseText);
+	        }
+			xmlhttp.open("GET","gettablemenu.php?q=" + $(".db_select").val(),true);
+	        xmlhttp.send();
+		});
+  	});
+  </script>
+    
   </body>
 </html>
 

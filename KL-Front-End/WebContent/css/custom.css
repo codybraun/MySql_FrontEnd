@@ -1,0 +1,17 @@
+@CHARSET "UTF-8";
+
+.query_wrapper{
+	width:100%;
+	float:right;
+	border: 2px solid black;
+	padding:10px;
+}
+
+#all_queries{
+	width:100%;
+}
+
+.results_select{
+	width:100%;
+	float:bottom;
+}
