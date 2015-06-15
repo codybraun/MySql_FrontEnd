@@ -25,7 +25,7 @@
 
 	<div class="container-fluid">
 		<?php include 'header.php'; ?>
-		<div class="col-md-8 col-md-offset-2">
+		<div class="col-md-8 col-md-offset-2" id="main_wrapper">
 			<?php
 			
 			$servername = "klab.c3se0dtaabmj.us-west-2.rds.amazonaws.com";
@@ -83,26 +83,48 @@
 					for (idx=0; idx< table_columns.length; idx++){
 						$target.find(".column_select").append("<option value= '" + table_columns[idx][0] + "'> "+ table_columns[idx][0] + "</option>");
 					};
-					$target.append('<div class="where_wrapper"><input class="where_select" type="radio" checked="checked" name ="where' + select_id + '" value="exact"> exactly <input type="radio" class="where_select" name ="where' + select_id + '" value="similar"> similar to <input class="where_select" type="radio" name ="where' + select_id + '" value="in"> in <input type="radio" class="where_select" name ="where' + select_id + '" value="dropdown"> dropdown <br><input class="where_text" name="where_text' + select_id + '" type="text" >  </div> <br><br>');
+					$target.append('<div class="where_wrapper"><input class="where_select" type="radio" checked="checked" name ="where' + select_id + '" value="exact"> is exactly <input type="radio" class="where_select" name ="where' + select_id + '" value="similar"> is similar to <input class="where_select" type="radio" name ="where' + select_id + '" value="in"> is in <input type="radio" class="where_select" name ="where' + select_id + '" value="dropdown"> Select from dropdown <br><input class="where_text" name="where_text' + select_id + '" type="text" >  </div> <br><br>');
 					$target.append('<div class="combine"><button type="button" class="and btn-default col-md-3 col-md-offset-2">AND</button><button type="button" class="or btn-default col-md-3 col-md-offset-2">OR</button></div><br>');
 					select_id ++;
 					  });
   		   }
 
-		  jQuery.fn.new_join_query = function() {
+		  jQuery.fn.new_in_query = function(method) {
 			  return this.each(function() {
-				  $target = $(this);
-				  $target.html('<div class="query-wrapper"><select name="table' + select_id + '" class="table_select form-control"><br>');
-					for (idx=0; idx< tables.length; idx++){
-						$target.find(".table_select").append("<option value= '" + tables[idx]["Tables_in_arxiv"] + "'> "+tables[idx]["Tables_in_arxiv"] + "</option>");
+				 $("#all_queries").append('<div class="in_wrapper pull-right">');
+				 $target = $(".in_wrapper:last");
+				 $target.append('<h1>' + method + '</h1>');
+				 $target.append('<button type="button" class="pull-right btn btn-danger kill_query">REMOVE</button>');
+				 $target.append('<select class="column_select form-control" name="column' + select_id + '"></select><br>');
+					for (idx=0; idx< table_columns.length; idx++){
+						$target.find(".column_select").append("<option value= '" + table_columns[idx][0] + "'> "+ table_columns[idx][0] + "</option>");
 					};
-					$target.find(".query-wrapper").append('<select class="column_select form-control" name="column' + select_id + '"></select><br>');
-					$target.find(".query-wrapper").append('<div class="Where_wrapper"><input class="where_select" type="radio" name ="where' + select_id + '" checked="checked" value ="all" > all rows <input class="where_select" type="radio" name ="where' + select_id + '" value="exact"> exactly <input type="radio" class="where_select" name ="where' + select_id + '" value="similar"> similar to <input class="where_select" type="radio" name ="where' + select_id + '" value="in"> in <input type="radio" class="where_select" name ="where' + select_id + '" value="dropdown"> dropdown <br><input class="where_text" type="text" >  </div> <br><br>');
-					$target.find(".query-wrapper").append('<div class="combine"><a class="and">AND</a><a class="or">OR</a><br></div>');
+					$target.append('<div class="where_wrapper"><input class="where_select" type="radio" checked="checked" name ="where' + select_id + '" value="exact"> is exactly <input type="radio" class="where_select" name ="where' + select_id + '" value="similar"> is similar to <input class="where_select" type="radio" name ="where' + select_id + '" value="in"> is in <input type="radio" class="where_select" name ="where' + select_id + '" value="dropdown"> Select from dropdown <br><input class="where_text" name="where_text' + select_id + '" type="text" >  </div> <br><br>');
+					$target.append('<div class="combine"><button type="button" class="and_in btn-default col-md-3 col-md-offset-2">AND</button><button type="button" class="or_in btn-default col-md-3 col-md-offset-2">OR</button></div><br>');
 					select_id ++;
 					  });
   		   }
 
+			//add a join selecting box
+		  jQuery.fn.new_join = function() {
+			  return this.each(function() {
+				 $("#main_wrapper").append('<div class="join_wrapper">');
+				 $target = $(".join_wrapper:last");
+				 $target.append('<h1>Join</h1>');
+				 
+				 $target.append('Table: <select name="table' + select_id + '" class="table_select form-control"><br>');
+				 $target.append('Where it shares this column: <select name="table' + select_id + '" class="column_select form-control"><br>');
+					
+				 select_id ++;
+				 for (idx=0; idx< tables.length; idx++){
+						$target.find(".table_select").append("<option value= '" + tables[idx]["Tables_in_arxiv"] + "'> "+tables[idx]["Tables_in_arxiv"] + "</option>");
+					};
+				 
+					  });
+  		   }
+		   
+
+		 //"where" selection 
 		 $("html").on('change', '.where_select', function(event) {
 			 if ($(event.target).val() != "exact" && $(event.target).val() != "similar"){
 			 	$(event.target).parent().find(".where_text").hide();
@@ -110,20 +132,63 @@
 			 else{
 				 $(event.target).parent().find(".where_text").show();
 			 }
+			 
+			 if ($(event.target).val() == "in")
+			{
+				 $(event.target).parents("#all_queries").new_in_query("In");	 
+			 }
+			 
 		 });
-		
+
+		//and click handler
 		$("html").on('click', '.and', function(event) {
 			$(event.target).parent(".combine").addClass("and");
 			$(event.target).parent(".combine").hide();
 			$(event.target).parents("#all_queries").new_query("and");
 		});
 
+		//or click handler
 		$("html").on('click', '.or', function(event) {
 			$(event.target).parent(".combine").addClass("or");
 			$(event.target).parent(".combine").hide();
 			$(event.target).parents("#all_queries").new_query("or");
 		});
 
+		//and in click handler
+		$("html").on('click', '.and_in', function(event) {
+			$(event.target).parent(".combine").addClass("and");
+			$(event.target).parent(".combine").hide();
+			$(event.target).parents("#all_queries").new_in_query("and");
+		});
+
+		//or in click handler
+		$("html").on('click', '.or_in', function(event) {
+			$(event.target).parent(".combine").addClass("or");
+			$(event.target).parent(".combine").hide();
+			$(event.target).parents("#all_queries").new_in_query("or");
+		});
+
+		//add a new join box
+		$("html").on('click', '.join_button', function(event) {
+			$(event.target).new_join();
+		});
+
+		//change tables in a join box
+		$("html").on('click', '.table_select', function(event) {
+			$.post('getcolumns.php', {"table" :$(event.target).val()} , function( data ) {
+
+				target = $(event.target).find(".column_select");
+				  $(target).html(data);
+				  console.log(data);
+				  console.log(cur_columns);
+				for (idx=0; idx< cur_columns.length; idx++){
+						if ($.inArray(cur_columns[idx], data)){
+							$(target).find(".table_select").append("<option value= '" + cur_columns[idx] + "'> "+ cur_columns[idx] + "</option>");
+						}
+				}
+					  },'json');
+		});
+		
 		//remove button: remove this query, reset the previous combine box
 		$("html").on('click', '.kill_query', function(event) {
 			$(event.target).parents(".query_wrapper").remove();
@@ -158,12 +223,11 @@
 		});
 		
 		setInterval(function() {
-			
-	}, 5000);
-
-		$( "form" ).submit(function( event ) {
 			output_array = {};
 			prev = null;
+			cur_columns = [];
+
+			//package data for query builder
 			$(".query_wrapper").each(function (idx){
 				query_dict = {"column":$(this).find(".column_select").val(), "where":$(this).find(".where_select:checked").val(), "where_text":$(this).find(".where_text").val() ,"subquery":" ", "combine" : "", "left_parens":"false", "right_parens":"false"};
 				if ($(this).find(".combine").hasClass('and')){
@@ -190,14 +254,78 @@
 				
 				output_array[idx]= query_dict;
 			});
-			
 			console.log(output_array);
-
+			
+			//send everything to query builder
 			$.post('query_run.php', output_array, function( data ) {
 				  //parsed_results = jQuery.parseJSON(data);
 				  $("#query_div").html(data.query);
 				  response = data.response;
 				  columns = data.columns;
+				  $("#resp_table").empty();
+				  $(resp_table).append("<tr>");
+				  $.each(columns , function() {
+						column_name= this.name;
+						cur_columns.push(column_name);
+						$(resp_table).find("tr:last").append("<td>" + column_name + "</td>");
+					  });
+				  $.each(response, function(idx) {
+					$(resp_table).append("<tr>");
+					  $.each(columns , function() {
+						column_name= this.name;
+						$(resp_table).find("tr:last").append("<td>" + response[idx][column_name] + "</td>");
+					  });
+				  });
+				  console.log(data);
+			}, 'json');
+	}, 5000);
+
+		//handle form submission here 
+		$( "form" ).submit(function( event ) {
+			output_array = {};
+			prev = null;
+
+			//package data for query builder
+			$(".query_wrapper").each(function (idx){
+				query_dict = {"column":$(this).find(".column_select").val(), "where":$(this).find(".where_select:checked").val(), "where_text":$(this).find(".where_text").val() ,"subquery":" ", "combine" : "", "left_parens":"false", "right_parens":"false"};
+				if ($(this).find(".combine").hasClass('and')){
+					query_dict['combine'] = 'and';
+				}
+				else if ($(this).find(".combine").hasClass('or')){
+					query_dict['combine'] = 'or';
+				}
+				
+				if (prev != null){
+				console.log(prev.hasClass("indented") + " " + !$(this).hasClass("indented"));
+				}
+				
+				if (prev != null && prev.hasClass("indented") && !$(this).hasClass("indented")){
+					query_dict['right_parens'] = 'true';
+					console.log("right");
+				}
+				else if (prev != null && !prev.hasClass("indented") && $(this).hasClass("indented")){
+					query_dict['left_parens'] = 'true';
+					console.log("left");
+				}
+				
+				prev = $(this);
+				
+				output_array[idx]= query_dict;
+			});
+			console.log(output_array);
+			
+			//send everything to query builder
+			$.post('query_run.php', output_array, function( data ) {
+				  //parsed_results = jQuery.parseJSON(data);
+				  $("#query_div").html(data.query);
+				  response = data.response;
+				  columns = data.columns;
+				  $("#resp_table").empty();
+				  $(resp_table).append("<tr>");
+				  $.each(columns , function() {
+						column_name= this.name;
+						$(resp_table).find("tr:last").append("<td>" + column_name + "</td>");
+					  });
 				  $.each(response, function(idx) {
 					$(resp_table).append("<tr>");
 					  $.each(columns , function() {
@@ -229,6 +357,8 @@
 		</div>
 		
 	</div>
+	<br><br>
+	<button type="button" class="join_button btn-default col-md-4 col-md-offset-4">JOIN</button>
 	
 	<div class="results_select col-md-8 col-md-offset-2"><br><br>Return results as: <input type="radio" name="result_format"
 				value="txt"> Text query <input type="radio" name="result_format">
@@ -236,7 +366,7 @@
 				type="radio" name="result_format"> .CSV <input type="radio"
 				name="result_format"> C Object <input type="radio"
 				name="result_format"> S3 stream (for adding to an S3 bucket) <br> <br>
-			<button type="submit" name="submit" id="submit_button">Submit</button></div>
+			<button type="submit" name="submit" id="submit_button" class="submit_button btn-default col-md-4 col-md-offset-2">Submit</button></div>
 			</form>
 	
 	</div>

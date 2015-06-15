@@ -7,6 +7,12 @@
 	padding:10px;
 }
 
+.join_wrapper{
+	width:100%;
+	border: 2px solid black;
+	padding:10px;
+}
+
 #all_queries{
 	width:100%;
 }
@@ -14,4 +20,10 @@
 .results_select{
 	width:100%;
 	float:bottom;
+}
+
+.in_wrapper{
+	background-color:#E6FFE6;
+	width:75%;
+	padding:10px;
 }

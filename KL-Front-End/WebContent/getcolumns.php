@@ -16,8 +16,12 @@ if (!$field_list) {
 	$message .= 'Whole query: ' . $query;
 	die($message);
 }
-while ($row = mysql_fetch_array($field_list)) {
-	echo "<option value=". $row[0]. ">".$row[0] ."</option>";
+
+while($r = mysql_fetch_array($field_list)) {
+		$columns[] = $r["Field"];
 }
+
+echo json_encode($columns);
+
 mysql_close($conn);
 ?>
