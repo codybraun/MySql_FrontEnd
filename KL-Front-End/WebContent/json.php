@@ -9,10 +9,8 @@ $password = $_SESSION['password'];
 // Create connection
 $conn = mysql_connect($servername, $username, $password);
 
-$xls_file = fopen('php://output', 'w');
-foreach (parse_query(false)['response'] as $line)
-  {
-  fputcsv($xls_file, $line, "\t", '"');
-  }
-fclose($xls_file);
+$json_file = fopen('php://output', 'w');
+$rows = array();
+fwrite($json_file, json_encode(parse_query(false)['response']));
+fclose($json_file);
 ?>

@@ -10,7 +10,7 @@ $password = $_SESSION['password'];
 $conn = mysql_connect($servername, $username, $password);
 
 $csv_file = fopen('php://output', 'w');
-foreach (parse_query()['response'] as $line)
+foreach (parse_query(false)['response'] as $line)
   {
   fputcsv($csv_file, $line);
   }

@@ -1,5 +1,5 @@
 <?php
-function parse_query ($preview){
+function parse_query (){
 	$sub_query = '';
 	$join_query = '';
 
@@ -7,16 +7,11 @@ function parse_query ($preview){
 		//handle joins
 		if ($value['type'] == "JOIN"){
 			$join_query = $value['table'] . " ON " . $_SESSION['table'] . "." . $value['column'] . " = " . $value['table'] . "." . $value['column'];
-			if ($value['right']!='true' && $value['left']!='true'){
+			if ($value['right']=='false' && $value['left']=='false'){
 				$join_query = " INNER JOIN " . $join_query;
 			}
-			else if ($value['right']=='true' && $value['left']!='true')
+			else if ($value['right']=='true' && $value['left']=='false')
 			{
-				$join_query = " RIGHT JOIN " . $join_query;
-			}
-			else if ($value['right']!='true' && $value['left']=='true')
-			{
-				$join_query = " LEFT JOIN " . $join_query;
 			}
 		}
 		//handle queries
@@ -31,7 +26,7 @@ function parse_query ($preview){
 			}
 			$sub_query = $sub_query . " " . $value['column'];
 			$search = $value['where_text'];
-
+				
 			if ($value['where'] == 'exact'){
 				$sub_query = $sub_query . ' = "' . $search . '"';
 			}
@@ -39,16 +34,14 @@ function parse_query ($preview){
 				$sub_query = $sub_query . ' LIKE "%' . $search . '%"';
 			}
 			$combine = $value['combine'];
+
 		}
 	}
 	$query = "SELECT * FROM " . $_SESSION['table'] . $join_query . " WHERE " . $sub_query;
-	if ($preview){
-		$query = $query . " LIMIT 10";
-	}
 	$query = $query . ";";
 
 	mysql_select_db ($_SESSION['db']);
-	$response = mysql_query($query);
+	$response = mysql_query(substr($query, 0, -1) . " LIMIT 10;");
 
 	//check if got response
 	if (!$response || $response==null) {
