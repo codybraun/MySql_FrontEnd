@@ -10,7 +10,7 @@ $conn = mysql_connect($servername, $username, $password);
 $db = $_POST['db'];
 mysql_select_db ($db);
 
-echo (json_encode(parse_query()));
+echo(parse_query()['query']);
 
 mysql_close($conn);
 ?>

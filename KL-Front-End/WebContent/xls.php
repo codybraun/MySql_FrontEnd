@@ -9,10 +9,10 @@ $password = $_SESSION['password'];
 // Create connection
 $conn = mysql_connect($servername, $username, $password);
 
-$csv_file = fopen('php://output', 'w');
+$xls_file = fopen('php://output', 'w');
 foreach (parse_query()['response'] as $line)
   {
-  fputcsv($csv_file, $line);
+  fputcsv($xls_file, $line, "\t", '"');
   }
-fclose($csv_file);
+fclose($xls_file);
 ?>
