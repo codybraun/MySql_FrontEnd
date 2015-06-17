@@ -20,7 +20,7 @@ function parse_query ($preview){
 			}
 		}
 		//handle queries
-		else if ($value['type'] != "JOIN"){
+		else if ($value['type'] == "QUERY"){
 			if ($value['right_parens'] == 'true'){
 				$sub_query = $sub_query . ') ';
 			}
@@ -39,6 +39,9 @@ function parse_query ($preview){
 				$sub_query = $sub_query . ' LIKE "%' . $search . '%"';
 			}
 			$combine = $value['combine'];
+		}
+		else if ($value['type'] == "FILE"){
+			$file_info = array($value['left'], $value['center'], $value['right'] );
 		}
 	}
 	$query = "SELECT * FROM " . $_SESSION['table'] . $join_query . " WHERE " . $sub_query;
@@ -66,7 +69,7 @@ function parse_query ($preview){
 		while($r = mysql_fetch_assoc($response)) {
 			$response_rows[] = $r;
 		}
-		return array("query" => $query, "response"=> $response_rows, "columns" => $columns);
+		return array("query" => $query, "response"=> $response_rows, "columns" => $columns, "file_info" => $file_info);
 	}
 
 }

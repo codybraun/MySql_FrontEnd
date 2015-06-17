@@ -34,12 +34,17 @@ function preview_data() {
 	}, 'json');
 }
 
-function package_urls(){
-	url_array = {"left":$("#file-loc-left").val(), "center":$("#file-loc-center").val(), "right":$("#file-loc-right").val()};
+function package_urls() {
+	url_array = {
+		"left" : $("#file-loc-left").val(),
+		"center" : $("#file-loc-center").val(),
+		"right" : $("#file-loc-right").val()
+	};
 }
 
 function package_form() {
 	output_array = {};
+	$.curQuery.queryCount = 0;
 	$(".query_wrapper").each(
 			function(idx) {
 				query_dict = {
@@ -80,7 +85,15 @@ function package_form() {
 			"right" : $(this).find(".join_type_right").is(':checked')
 		};
 		output_array[idx + $.curQuery.queryCount + 1] = query_dict;
+		$.curQuery.queryCount ++;
 	});
+	query_dict = {
+			"type" : "FILE",
+			"left" : $("#file-loc-left").val(),
+			"center" : $("#file-loc-center").val(),
+			"right" : $("#file-loc-right").val()
+		};
+	output_array[$.curQuery.queryCount + 1] = query_dict;
 	console.log(output_array);
 	return output_array;
 }
@@ -116,8 +129,7 @@ function check_borders() {
 			});
 }
 
-function xls_results(cur_table)
-{
+function xls_results(cur_table) {
 	// package data for query builder
 	output_Array = package_form();
 
@@ -131,23 +143,24 @@ function xls_results(cur_table)
 	}, 'text');
 }
 
-function csv_results(cur_table)
-{
+function csv_results(cur_table) {
 	// package data for query builder
 	output_Array = package_form();
 	url_array = package_urls();
-	$.post('files.php', {"output_array":output_array, "url_array":url_array}, function(data) {
+	$.post('files.php', {
+		"output_array" : output_array,
+		"url_array" : url_array
+	}, function(data) {
 		// parsed_results = jQuery.parseJSON(data);
 		var blob = new Blob([ data ]);
 		var link = document.createElement('a');
 		link.href = window.URL.createObjectURL(blob);
-		link.download = cur_table + ".zip";
+		link.download = cur_table + ".csv";
 		link.click();
 	}, 'text');
 }
 
-function json_results(cur_table)
-{
+function json_results(cur_table) {
 	// package data for query builder
 	output_Array = package_form();
 
@@ -159,4 +172,15 @@ function json_results(cur_table)
 		link.download = cur_table + ".json";
 		link.click();
 	}, 'text');
+
+}
+
+function files_results(cur_table) {
+	// package data for query builder
+	output_Array = package_form();
+
+	$.post('files.php', output_array, function(data) {
+		// parsed_results = jQuery.parseJSON(data);
+		$("#loc-wrapper").html("<a href='" + data + "'>Your zip file</a>");
+	});
 }

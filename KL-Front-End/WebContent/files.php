@@ -9,8 +9,31 @@ $password = $_SESSION['password'];
 // Create connection
 $conn = mysql_connect($servername, $username, $password);
 
-$json_file = fopen('php://output', 'w');
+$zip = new ZipArchive();
+$tmp_file = tempnam('.','') . ".zip";
+$zip->open($tmp_file, ZipArchive::CREATE);
+
 $rows = array();
-fwrite($json_file, json_encode(parse_query(false)['response']));
-fclose($json_file);
+$parsed_query = parse_query(false);
+$column_to_iter = $parsed_query['file_info'][1];
+$left = $parsed_query['file_info'][0];
+$right = $parsed_query['file_info'][2];
+
+$files = array();
+$i =0;
+foreach ($parsed_query['response'] as $row){
+	//gets hit with 403s
+	//$download = file_get_contents($left . $row[$column_to_iter] . $right);
+	$url = $left . $row[$column_to_iter] . $right;
+	$ch = curl_init();
+	curl_setopt($ch, CURLOPT_URL, $url);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+	curl_setopt($ch,CURLOPT_USERAGENT,'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13');
+	$download= curl_exec($ch);
+	curl_close($ch);
+	$zip->addFromString($i . ".pdf", $download);
+	$i ++;
+}
+$zip->close();
+echo basename($tmp_file) ;
 ?>

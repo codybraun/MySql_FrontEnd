@@ -78,6 +78,38 @@ p{
 	border: 4px dotted black;
 	position:fixed;
 	text-align:center;
+	z-index:9999;
+}
+
+.table_content {
+	background-color:#E6FFE6;
+	width:100%;
+}
+.table_wrapper {
+	width:100%;
+	}
+
+.field_content {
+	background-color:#B8E68A;
+	width:100%;
+}
+
+.field_wrapper {
+	width:75%;
+	}
+	
+.sample_content {
+	background-color:#FFFFA7;
+	width:100%;
+}
+
+.sample_wrapper {
+	width:75%;
+}	
+	
+.overview{
+	padding:3px;
+	float:right;
 }
 
 }

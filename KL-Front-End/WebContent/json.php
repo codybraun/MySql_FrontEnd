@@ -10,7 +10,6 @@ $password = $_SESSION['password'];
 $conn = mysql_connect($servername, $username, $password);
 
 $json_file = fopen('php://output', 'w');
-$rows = array();
 fwrite($json_file, json_encode(parse_query(false)['response']));
 fclose($json_file);
 ?>
