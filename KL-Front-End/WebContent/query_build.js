@@ -3,23 +3,32 @@ function preview(data) {
 	response = data.response;
 	console.log(response);
 	columns = data.columns;
-	$("#resp_table").empty();
-	$(resp_table).append("<tr>");
-	$.each(columns, function() {
-		column_name = this.name;
-		if ($.inArray(column_name, $.curQuery.cur_columns) == -1) {
-			$.curQuery.cur_columns.push(column_name);
-		}
-		$(resp_table).find("tr:last").append("<td>" + column_name + "</td>");
-	});
-	$.each(response, function(idx) {
+	console.log(columns);
+	if (columns.length > 0 ){
+	
+		$("#resp_table").empty();
 		$(resp_table).append("<tr>");
 		$.each(columns, function() {
 			column_name = this.name;
-			$(resp_table).find("tr:last").append(
-					"<td>" + response[idx][column_name] + "</td>");
+			column_type = this.type;
+			if ($.curQuery.cur_columns[column_name] == undefined) {
+				$.curQuery.cur_columns[column_name] = column_type;
+			}
+			$(resp_table).find("tr:last").append("<td>" + column_name + "</td>");
 		});
-	});
+		$.each(response, function(idx) {
+			$(resp_table).append("<tr>");
+			$.each(columns, function() {
+				column_name = this.name;
+				$(resp_table).find("tr:last").append(
+						"<td>" + response[idx][column_name] + "</td>");
+			});
+		});
+	}
+	else
+		{
+		console.log("ERROR");
+		}
 }
 
 function preview_data() {
@@ -47,11 +56,23 @@ function package_form() {
 	$.curQuery.queryCount = 0;
 	$(".query_wrapper").each(
 			function(idx) {
+				where_text = $(this).find(".where_text").val();
+				column = $(this).find(".column_select").val();
+				where = $(this).find(".where_select:checked").val();
+				if (where == 'similar'){
+					where_text = "%" + where_text + "%";
+				}
+				console.log("looking up " + column + $.curQuery.column_dict[column]);
+				
+				if ($.curQuery.column_dict[column] == 'varchar(32)' || $.curQuery.column_dict[column] == 'varchar(64)' || $.curQuery.column_dict[column] == 'text'){
+					where_text = "'" + where_text + "'";
+				}
+				console.log ($.curQuery.cur_columns[column]);
 				query_dict = {
 					"type" : "QUERY",
-					"column" : $(this).find(".column_select").val(),
-					"where" : $(this).find(".where_select:checked").val(),
-					"where_text" : $(this).find(".where_text").val(),
+					"column" : column,
+					"where" : where,
+					"where_text" : where_text,
 					"subquery" : " ",
 					"combine" : "",
 					"left_parens" : "false",
@@ -85,14 +106,14 @@ function package_form() {
 			"right" : $(this).find(".join_type_right").is(':checked')
 		};
 		output_array[idx + $.curQuery.queryCount + 1] = query_dict;
-		$.curQuery.queryCount ++;
+		$.curQuery.queryCount++;
 	});
 	query_dict = {
-			"type" : "FILE",
-			"left" : $("#file-loc-left").val(),
-			"center" : $("#file-loc-center").val(),
-			"right" : $("#file-loc-right").val()
-		};
+		"type" : "FILE",
+		"left" : $("#file-loc-left").val(),
+		"center" : $("#file-loc-center").val(),
+		"right" : $("#file-loc-right").val()
+	};
 	output_array[$.curQuery.queryCount + 1] = query_dict;
 	console.log(output_array);
 	return output_array;

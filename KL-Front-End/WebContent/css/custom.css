@@ -23,6 +23,24 @@
 	margin:10px;
 }
 
+.group_button_wrapper{
+	position: relative;
+	width:100%;
+	float:right;
+	padding:10px;
+	clear: both;
+	margin:10px;
+}
+
+.sort_button_wrapper{
+	position: relative;
+	width:100%;
+	float:right;
+	padding:10px;
+	clear: both;
+	margin:10px;
+}
+
 #main_wrapper{
 	position:relative;
 }

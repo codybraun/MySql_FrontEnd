@@ -5,6 +5,7 @@
 
 <?php
 
+//conection info
 $servername = "klab.c3se0dtaabmj.us-west-2.rds.amazonaws.com";
 $username = $_SESSION['username'];
 $password = $_SESSION['password'];
@@ -75,6 +76,14 @@ mysql_close($conn);
 				var join_id = 0;
 				$.curQuery = new Object();
 				$.curQuery.cur_columns = [];
+				$.curQuery.column_dict = {};
+
+				//establish dictionary of known column types
+				for (idx=0; idx< table_columns.length; idx++){
+					$.curQuery.column_dict[table_columns[idx][0]]=table_columns[idx][1];
+					console.log("setting " + table_columns[idx][0] + " to " + table_columns[idx][1]);
+				};
+				
 				$(".file-loc").hide();
 				$("#busy").hide();
 				$.ajaxSetup({
@@ -104,7 +113,7 @@ mysql_close($conn);
 							for (idx=0; idx< table_columns.length; idx++){
 								$target.find(".column_select").append("<option value= '" + table_columns[idx][0] + "'> "+ table_columns[idx][0] + "</option>");
 							};
-							$target.append('<div class="where_wrapper"><input class="where_select" type="radio" checked="checked" name ="where' + select_id + '" value="exact"> is exactly <input type="radio" class="where_select" name ="where' + select_id + '" value="dropdown"> Select from dropdown <input type="radio" class="where_select" name ="where' + select_id + '" value="range"> is in a range <input type="radio" class="where_select" name ="where' + select_id + '" value="similar"> is similar to <input class="where_select" type="radio" name ="where' + select_id + '" value="in"> is in the results of another query <input type="radio" class="where_select" name ="where' + select_id + '" value="dropdown"> Select from dropdown <br><input class="where_text" name="where_text' + select_id + '" type="text" >  </div> <br><br>');
+							$target.append('<div class="where_wrapper"><input class="where_select" type="radio" checked="checked" name ="where' + select_id + '" value="exact"> is exactly <input type="radio" class="where_select" name ="where' + select_id + '" value="range"> is in a range <input type="radio" class="where_select" name ="where' + select_id + '" value="similar"> is similar to <input class="where_select" type="radio" name ="where' + select_id + '" value="in"> is in the results of another query <input type="radio" class="where_select" name ="where' + select_id + '" value="dropdown"> Select from dropdown <br><input class="where_text" name="where_text' + select_id + '" type="text" >  </div> <br><br>');
 							$target.append('<div class="combine"><button type="button" class="and btn-default col-md-3 col-md-offset-2">AND</button><button type="button" class="or btn-default col-md-3 col-md-offset-2">OR</button></div><br>');
 							select_id ++;
 							check_borders();
@@ -121,7 +130,7 @@ mysql_close($conn);
 							for (idx=0; idx< table_columns.length; idx++){
 								$target.find(".column_select").append("<option value= '" + table_columns[idx][0] + "'> "+ table_columns[idx][0] + "</option>");
 							};
-							$target.append('<div class="where_wrapper"><input class="where_select" type="radio" checked="checked" name ="where' + select_id + '" value="exact"> is exactly <input type="radio" class="where_select" name ="where' + select_id + '" value="similar"> is similar to <input class="where_select" type="radio" name ="where' + select_id + '" value="in"> is in <input type="radio" class="where_select" name ="where' + select_id + '" value="dropdown"> Select from dropdown <br><input class="where_text" name="where_text' + select_id + '" type="text" >  </div> <br><br>');
+							$target.append('<div class="where_wrapper"><input class="where_select" type="radio" checked="checked" name ="where' + select_id + '" value="exact"> is exactly <input type="radio" class="where_select" name ="where' + select_id + '" value="similar"> is similar to <input class="where_text" name="where_text' + select_id + '" type="text" >  </div> <br><br>');
 							$target.append('<div class="combine"><button type="button" class="and_in btn-default col-md-3 col-md-offset-2">AND</button><button type="button" class="or_in btn-default col-md-3 col-md-offset-2">OR</button></div><br>');
 							select_id ++;
 							  });
@@ -203,9 +212,9 @@ mysql_close($conn);
 		
 						target = $(event.target).parent().find(".column_select");
 						  $(target).html(data);
-						for (idx=0; idx< $.curQuery.cur_columns.length; idx++){
-								if ($.inArray($.curQuery.cur_columns[idx], data) != -1){
-									$(target).append("<option value= '" + $.curQuery.cur_columns[idx] + "'> "+ $.curQuery.cur_columns[idx] + "</option>");
+						for (idx=0; idx< data.length; idx++){
+								if ($.curQuery.cur_columns[data[idx]] != undefined){
+									$(target).append("<option value= '" + data[idx] + "'> "+ data[idx] + "</option>");
 								}
 						}
 							  },'json');
@@ -317,12 +326,7 @@ mysql_close($conn);
 				$("#all_queries").new_query("I want rows where: ");
 			});
 		</script>
-
-				<div class="join_button_wrapper">
-					<button type="button" xls
-						class="join_button btn-default col-md-4 col-md-offset-4">Combine
-						with another table</button>
-				</div>
+				
 				<div id="busy" class="col-md-4 col-md-offset-2">
 					<h1>BUSY</h1>
 				</div>

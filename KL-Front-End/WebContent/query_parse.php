@@ -33,10 +33,10 @@ function parse_query ($preview){
 			$search = $value['where_text'];
 
 			if ($value['where'] == 'exact'){
-				$sub_query = $sub_query . ' = "' . $search . '"';
+				$sub_query = $sub_query . ' = ' . $search;
 			}
 			else if ($value['where'] == "similar"){
-				$sub_query = $sub_query . ' LIKE "%' . $search . '%"';
+				$sub_query = $sub_query . ' LIKE ' . $search ;
 			}
 			$combine = $value['combine'];
 		}
