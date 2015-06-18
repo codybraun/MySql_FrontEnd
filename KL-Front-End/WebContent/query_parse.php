@@ -2,7 +2,8 @@
 function parse_query ($preview){
 	$sub_query = '';
 	$join_query = '';
-
+	$sort_query = '';
+	
 	foreach ($_POST as $key => $value){
 		//handle joins
 		if ($value['type'] == "JOIN"){
@@ -38,13 +39,30 @@ function parse_query ($preview){
 			else if ($value['where'] == "similar"){
 				$sub_query = $sub_query . ' LIKE ' . $search ;
 			}
+			else if ($value['where'] == "range"){
+				$exploded = explode('-', $search);
+				$sub_query = $sub_query . ' BETWEEN ' . $exploded[0] . ' AND ' .  $exploded[1];
+			}
 			$combine = $value['combine'];
 		}
 		else if ($value['type'] == "FILE"){
 			$file_info = array($value['left'], $value['center'], $value['right'] );
 		}
+		//handle sorting
+		else if ($value['type'] == "SORT"){
+			if ($value['style']=="asc")
+			{
+				$style = " ASC ";
+			}
+			else {
+				$style = " DESC ";
+			}
+			$sort_query = " ORDER BY " . $value['column'] . $style;
+		}
 	}
-	$query = "SELECT * FROM " . $_SESSION['table'] . $join_query . " WHERE " . $sub_query;
+	$query = "SELECT * FROM " . $_SESSION['table'] . $join_query . " WHERE " . $sub_query . $sort_query;
+
+	
 	if ($preview){
 		$query = $query . " LIMIT 10";
 	}

@@ -1,11 +1,9 @@
 function preview(data) {
 	$("#query_div").html(data.query);
 	response = data.response;
-	console.log(response);
 	columns = data.columns;
-	console.log(columns);
-	if (columns.length > 0 ){
-	
+	if (columns.length > 0) {
+
 		$("#resp_table").empty();
 		$(resp_table).append("<tr>");
 		$.each(columns, function() {
@@ -14,7 +12,8 @@ function preview(data) {
 			if ($.curQuery.cur_columns[column_name] == undefined) {
 				$.curQuery.cur_columns[column_name] = column_type;
 			}
-			$(resp_table).find("tr:last").append("<td>" + column_name + "</td>");
+			$(resp_table).find("tr:last")
+					.append("<td>" + column_name + "</td>");
 		});
 		$.each(response, function(idx) {
 			$(resp_table).append("<tr>");
@@ -24,11 +23,9 @@ function preview(data) {
 						"<td>" + response[idx][column_name] + "</td>");
 			});
 		});
+	} else {
+		("ERROR");
 	}
-	else
-		{
-		console.log("ERROR");
-		}
 }
 
 function preview_data() {
@@ -59,15 +56,15 @@ function package_form() {
 				where_text = $(this).find(".where_text").val();
 				column = $(this).find(".column_select").val();
 				where = $(this).find(".where_select:checked").val();
-				if (where == 'similar'){
+				if (where == 'similar') {
 					where_text = "%" + where_text + "%";
 				}
-				console.log("looking up " + column + $.curQuery.column_dict[column]);
-				
-				if ($.curQuery.column_dict[column] == 'varchar(32)' || $.curQuery.column_dict[column] == 'varchar(64)' || $.curQuery.column_dict[column] == 'text'){
+
+				if ($.curQuery.column_dict[column] == 'varchar(32)'
+						|| $.curQuery.column_dict[column] == 'varchar(64)'
+						|| $.curQuery.column_dict[column] == 'text') {
 					where_text = "'" + where_text + "'";
 				}
-				console.log ($.curQuery.cur_columns[column]);
 				query_dict = {
 					"type" : "QUERY",
 					"column" : column,
@@ -115,7 +112,15 @@ function package_form() {
 		"right" : $("#file-loc-right").val()
 	};
 	output_array[$.curQuery.queryCount + 1] = query_dict;
-	console.log(output_array);
+	$.curQuery.queryCount++;
+	if ($("#sort_box").is(":visible")) {
+		query_dict = {
+			"type" : "SORT",
+			"column" : $("#sort-column-select").val(),
+			"style" : $(".sort-style").is(':checked')
+		};
+		output_array[$.curQuery.queryCount + 1] = query_dict;
+	}
 	return output_array;
 }
 

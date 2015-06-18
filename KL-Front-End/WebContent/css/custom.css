@@ -17,28 +17,25 @@
 .join_button_wrapper{
 	position: relative;
 	width:100%;
-	float:right;
-	padding:10px;
 	clear: both;
-	margin:10px;
+	margin-top:5px;
+	margin-bottom:5px;
 }
 
 .group_button_wrapper{
 	position: relative;
 	width:100%;
-	float:right;
-	padding:10px;
 	clear: both;
-	margin:10px;
+	margin-top:5px;
+	margin-bottom:5px;
 }
 
 .sort_button_wrapper{
 	position: relative;
 	width:100%;
-	float:right;
-	padding:10px;
 	clear: both;
-	margin:10px;
+	margin-top:5px;
+	margin-bottom:5px;
 }
 
 #main_wrapper{
@@ -50,6 +47,22 @@
 }
 
 .join_wrapper{
+	position: relative;
+	width:100%;
+	border: 2px solid black;
+	padding:10px;
+	clear: both;
+}
+
+#sort_box{
+	position: relative;
+	width:100%;
+	border: 2px solid black;
+	padding:10px;
+	clear: both;
+}
+
+#agg_box{
 	position: relative;
 	width:100%;
 	border: 2px solid black;
@@ -128,6 +141,15 @@ p{
 .overview{
 	padding:3px;
 	float:right;
+}
+
+#query_div{
+	border: 2px solid black;
+	padding:5px;
+}
+
+.sidebar {
+	background-color:#E6FFE6;
 }
 
 }

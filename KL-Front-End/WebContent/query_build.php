@@ -67,6 +67,32 @@ mysql_close($conn);
 				<div id="all_queries"></div>
 				<br> <br>
 				<div id="all_joins"></div>
+				
+				<div id="sort_box">
+					<h1>Sorted By</h1>
+					<br> <select id="sort-column-select"
+						class="column_select form-control" name="column' + select_id + '"></select>
+
+					<br> <br> <input class="sort_select" type="radio" checked="checked"
+						name="sort_style" value="asc"> Ascending <input
+						class="sort_select" type="radio" name="sort_style" value="desc">
+					Descending
+				</div>
+				
+				<div id="agg_box">
+					<h1>Return the</h1>
+					<br>
+					<select id="agg-style-select" class="form-control">
+					<option>Max</option>
+					<option>Min</option>
+					<option>Average</option>
+					<option>Count</option>
+					</select>
+					of rows sharing:
+					<br> <select id="agg-column-select"
+						class="column_select form-control"></select>
+				</div>
+				
 				<script type="text/javascript"> 
 		  	$(window).load(function(){
 			    var tables = <?php echo $js_tables; ?>;
@@ -81,11 +107,12 @@ mysql_close($conn);
 				//establish dictionary of known column types
 				for (idx=0; idx< table_columns.length; idx++){
 					$.curQuery.column_dict[table_columns[idx][0]]=table_columns[idx][1];
-					console.log("setting " + table_columns[idx][0] + " to " + table_columns[idx][1]);
 				};
 				
 				$(".file-loc").hide();
 				$("#busy").hide();
+				$("#sort_box").hide();
+				$("#agg_box").hide();
 				$.ajaxSetup({
 				    beforeSend:function(){
 				        // show image here
@@ -152,14 +179,35 @@ mysql_close($conn);
 						 for (idx=0; idx< tables.length; idx++){
 								$target.find(".table_select").append("<option value= '" + tables[idx]["Tables_in_arxiv"] + "'> "+tables[idx]["Tables_in_arxiv"] + "</option>");
 							};
-						 
 							  });
 		  		   }
-				   
+		  		   
+					//toggle the sort box
+				$("html").on('click', '#sort_button', function(event) {
+						$("#sort_box").toggle();
+						target = $("#sort-column-select");
+						$(target).empty();
+						console.log($.curQuery.cur_columns);
+						for (idx=0; idx< Object.keys($.curQuery.cur_columns).length; idx++){
+								$(target).append("<option value= '" + Object.keys($.curQuery.cur_columns)[idx] + "'> "+ Object.keys($.curQuery.cur_columns)[idx] + "</option>");
+							}
+					  });		
+
+
+				//toggle the agg box
+				$("html").on('click', '#agg_button', function(event) {
+						$("#agg_box").toggle();
+						target = $("#agg-column-select");
+						$(target).empty();
+						console.log($.curQuery.cur_columns);
+						for (idx=0; idx< Object.keys($.curQuery.cur_columns).length; idx++){
+								$(target).append("<option value= '" + Object.keys($.curQuery.cur_columns)[idx] + "'> "+ Object.keys($.curQuery.cur_columns)[idx] + "</option>");
+							}
+					  });		   
 		
 				 //"where" selection 
 				 $("html").on('change', '.where_select', function(event) {
-					 if ($(event.target).val() != "exact" && $(event.target).val() != "similar"){
+					 if ($(event.target).val() != "exact" && $(event.target).val() != "similar" && $(event.target).val() != "range"){
 					 	$(event.target).parent().find(".where_text").hide();
 					 }
 					 else{
@@ -217,7 +265,9 @@ mysql_close($conn);
 									$(target).append("<option value= '" + data[idx] + "'> "+ data[idx] + "</option>");
 								}
 						}
+						$(target).val(0);
 							  },'json');
+					
 					$(event.target).siblings(".join_type_left").find("p.join_type_left").html(cur_table);
 					$(event.target).siblings(".join_type_right").find("p.join_type_right").html($(event.target).val());
 					preview_data();
@@ -231,9 +281,9 @@ mysql_close($conn);
 						$(".file-loc").show();
 						target = $("#file-loc-center");
 						$(target).empty();
-						for (idx=0; idx< $.curQuery.cur_columns.length; idx++){
-								$(target).append("<option value= '" + $.curQuery.cur_columns[idx] + "'> "+ $.curQuery.cur_columns[idx] + "</option>");
-							}
+						for (idx=0; idx< Object.keys($.curQuery.cur_columns).length; idx++){
+							$(target).append("<option value= '" + Object.keys($.curQuery.cur_columns)[idx] + "'> "+ Object.keys($.curQuery.cur_columns)[idx] + "</option>");
+						}
 					}
 					else
 					{
@@ -326,8 +376,8 @@ mysql_close($conn);
 				$("#all_queries").new_query("I want rows where: ");
 			});
 		</script>
-				
-				<div id="busy" class="col-md-4 col-md-offset-2">
+
+				<div id="busy" class="text-center col-md-4 col-md-offset-2">
 					<h1>BUSY</h1>
 				</div>
 				<div class="results_wrapper">
@@ -354,10 +404,32 @@ mysql_close($conn);
 
 			</form>
 		</div>
-		<div class="col-md-1" style="position: fixed;">
-			<h3>Query Preview</h3>
-			<br>
-			<div id="query_div"></div>
+		<div class="col-md-2" style="position: fixed;">
+			<div>
+				<h3>Query Preview</h3>
+				<br>
+				<div id="query_div"></div>
+			</div>
+
+			<div id="left-menu">
+
+				<div class="join_button_wrapper">
+					<button type="button" class="join_button sidebar btn-default">Combine
+						with another table</button>
+				</div>
+
+				<div class="group_button_wrapper">
+					<button type="button" id="agg_button" class="sidebar group_button btn-default">Aggregate
+						data</button>
+				</div>
+
+				<div class="sort_button_wrapper">
+					<button id="sort_button" type="button"
+						class="sidebar sort_button btn-default">Sort data</button>
+				</div>
+
+			</div>
+
 		</div>
 		<div class="col-md-2 col-md-offset-10" style="position: fixed;">
 			<h3>Database Overview</h3>
